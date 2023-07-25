@@ -1,0 +1,163 @@
+version: '3.8'
+
+volumes:
+  mariadb:
+  opensearch-data1:
+  opensearch-data2:
+  redis-cache:
+  redis-session:
+  redis-insight:
+  rabbitmq-data:
+
+networks:
+  magento:
+    driver: bridge
+
+services:
+  mariadb:
+    image: mariadb:10.6
+    networks:
+      - magento
+    env_file:
+      - docker/m246/env/mariadb.env
+    volumes:
+      - type: bind
+        source: ./docker/m246/images/mariadb/conf.d
+        target: /etc/mysql/conf.d
+      - type: bind
+        source: ./docker/m246/images/mariadb/init.d
+        target: /docker-entrypoint-initdb.d
+      - type: volume
+        source: mariadb
+        target: /var/lib/mysql
+
+  nginx:
+    build:
+      context: ./docker/m246/images/nginx
+    depends_on:
+      - php
+      - mariadb
+    ports:
+      - 80:80
+      - 443:443
+    networks:
+      - magento
+    volumes:
+      - ./build:/var/www/html
+
+  php:
+    build:
+      context: ./docker/m246/images/php
+    networks:
+      - magento
+    depends_on:
+      - mariadb
+    volumes:
+      - ./build:/var/www/html
+
+  opensearch-primary:
+    image: opensearchproject/opensearch:latest 
+    container_name: opensearch-primary
+    ulimits:
+      memlock:
+        soft: -1 
+        hard: -1
+      nofile:
+        soft: 65536 
+        hard: 65536
+    env_file:
+      - docker/m246/env/opensearch-primary.env
+    volumes:
+      - type: bind
+        source: ./docker/m246/images/opensearch/config/jvm.options
+        target: /config/jvm.options
+      - type: volume
+        source: opensearch-data1
+        target: /usr/share/opensearch/data
+    ports:
+      - 9200:9200
+      - 9600:9600
+    networks:
+      - magento
+
+  opensearch-secondary:
+    image: opensearchproject/opensearch:latest
+    container_name: opensearch-secondary
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+    env_file:
+      - docker/m246/env/opensearch-secondary.env
+    volumes:
+      - type: bind
+        source: ./docker/m246/images/opensearch/config/jvm.options
+        target: /config/jvm.options
+      - type: volume
+        source: opensearch-data2
+        target: /usr/share/opensearch/data
+    networks:
+      - magento
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+    environment:
+      OPENSEARCH_HOSTS: '["https://opensearch-primary:9200","https://opensearch-secondary:9200"]'
+    networks:
+      - magento
+
+  redis-cache:
+    build:
+      context: ./docker/m246/images/redis/cache
+    sysctls:
+      - net.core.somaxconn=65535
+    networks:
+      - magento
+    volumes:
+      - type: volume
+        source: redis-cache
+        target: /data
+    ports:
+      - '8379:6379'
+
+  redis-session:
+    build:
+      context: ./docker/m246/images/redis/session
+    sysctls:
+      - net.core.somaxconn=65535
+    networks:
+      - magento
+    volumes:
+      - type: volume
+        source: redis-session
+        target: /data
+    ports:
+      - '7379:6379'
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - '8001:8001'
+    volumes:
+      - type: volume
+        source: redis-insight
+        target: /db
+  
+  rabbitmq:
+    image: rabbitmq:3-management
+    networks:
+      - magento
+    ports:
+      - '15672:15672'
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    env_file:
+      - docker/m246/env/rabbitmq.env
