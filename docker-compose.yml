@@ -35,7 +35,7 @@ services:
     build:
       context: ./docker/m246/images/nginx
     depends_on:
-      - php
+      - php-fpm
       - mariadb
     ports:
       - 80:80
@@ -45,15 +45,35 @@ services:
     volumes:
       - ./build:/var/www/html
 
-  php:
+  php-fpm:
     build:
       context: ./docker/m246/images/php
     networks:
       - magento
-    depends_on:
-      - mariadb
     volumes:
       - ./build:/var/www/html
+      
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    ports:
+      - '8001:8001'
+    volumes:
+      - type: volume
+        source: redis-insight
+        target: /db
+  
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:latest
+    container_name: opensearch-dashboards
+    ports:
+      - 5601:5601
+    expose:
+      - "5601"
+    environment:
+      - 'OPENSEARCH_HOSTS=["http://opensearch-primary:9200","http://opensearch-secondary:9200"]'
+      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
+    networks:
+      - magento
 
   opensearch-primary:
     image: opensearchproject/opensearch:latest 
@@ -102,18 +122,6 @@ services:
     networks:
       - magento
 
-  opensearch-dashboards:
-    image: opensearchproject/opensearch-dashboards:latest
-    container_name: opensearch-dashboards
-    ports:
-      - 5601:5601
-    expose:
-      - "5601"
-    environment:
-      OPENSEARCH_HOSTS: '["https://opensearch-primary:9200","https://opensearch-secondary:9200"]'
-    networks:
-      - magento
-
   redis-cache:
     build:
       context: ./docker/m246/images/redis/cache
@@ -141,23 +149,3 @@ services:
         target: /data
     ports:
       - '7379:6379'
-
-  redisinsight:
-    image: redislabs/redisinsight:latest
-    ports:
-      - '8001:8001'
-    volumes:
-      - type: volume
-        source: redis-insight
-        target: /db
-  
-  rabbitmq:
-    image: rabbitmq:3-management
-    networks:
-      - magento
-    ports:
-      - '15672:15672'
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-    env_file:
-      - docker/m246/env/rabbitmq.env
