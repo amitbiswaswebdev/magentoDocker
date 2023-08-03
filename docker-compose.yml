@@ -34,6 +34,9 @@ services:
   nginx:
     build:
       context: ./docker/m246/images/nginx
+      args:
+        app_user_id: 1000
+        app_group_id: 1000
     depends_on:
       - php-fpm
       - mariadb
@@ -48,6 +51,9 @@ services:
   php-fpm:
     build:
       context: ./docker/m246/images/php
+      args:
+        app_user_id: 1000
+        app_group_id: 1000
     networks:
       - magento
     volumes:
@@ -69,9 +75,8 @@ services:
       - 5601:5601
     expose:
       - "5601"
-    environment:
-      - 'OPENSEARCH_HOSTS=["http://opensearch-primary:9200","http://opensearch-secondary:9200"]'
-      - "DISABLE_SECURITY_DASHBOARDS_PLUGIN=true"
+    env_file:
+      - docker/m246/env/opensearch-dashboard.env
     networks:
       - magento
 
@@ -149,3 +154,32 @@ services:
         target: /data
     ports:
       - '7379:6379'
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    networks:
+      - magento
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    env_file:
+      - docker/m246/env/rabbitmq.env
+
+  varnish:
+    image: varnish:7.3.0
+    container_name: varnish
+    volumes:
+      - "./docker/m246/images/varnish/varnish.vcl:/etc/varnish/default.vcl"
+    ports:
+      - "8080:80"
+    tmpfs:
+      - /var/lib/varnish:exec
+    environment:
+      - VARNISH_SIZE=2G  
+    command: "-p default_keep=300"
+    depends_on:
+      - "nginx"
+    networks:
+      - magento
