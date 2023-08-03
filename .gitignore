@@ -1,2 +1,3 @@
 build/*
 !build/index.php
+docker/m246/images/nginx/conf/default.conf

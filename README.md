@@ -1,5 +1,13 @@
-# magentoDocker
+# Magento Docker
 Dockerisation of magento open source
+
+## Prerequisite
+- Docker desktop applipation in your system
+
+## Steps
+- Clone this Repository
+- Copy docker/m246/images/nginx/conf/default.conf.sample to docker/m246/images/nginx/conf/default.conf
+
 
 composer config --global http-basic.repo.magento.com 3eb970422e696a506855acc88877b4d4 5e92e72212f198d502b7d96854fcf23g
 

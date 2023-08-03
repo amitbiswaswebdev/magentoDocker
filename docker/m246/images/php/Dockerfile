@@ -1,7 +1,7 @@
 FROM php:8.2-fpm
 
-ARG app_user_id
-ARG app_group_id
+# ARG app_user_id
+# ARG app_group_id
 
 COPY conf/php.ini /usr/local/etc/php/
 
@@ -90,11 +90,11 @@ RUN docker-php-ext-enable \
     xmlwriter \
     xsl
 
-RUN groupadd -g ${app_group_id} app && useradd -g ${app_group_id} -u ${app_user_id} -d /var/www -s /bin/bash app
+# RUN groupadd -g ${app_group_id} app && useradd -g ${app_group_id} -u ${app_user_id} -d /var/www -s /bin/bash app
 
-RUN chown -R app:app /usr/local/etc/php/conf.d
+# RUN chown -R app:app /usr/local/etc/php/conf.d
 
-USER app:app
+# USER app:app
 
 VOLUME /var/www
 
