@@ -5,6 +5,17 @@ Dockerisation of magento open source
 - Docker desktop applipation in your system
 - For windows user - WSL2
 
+## Environment used
+- MariaDB
+- Nginx
+- PHP fpm
+- OpenSearch
+- Opensearch dashboard
+- Redis
+- Redis Insight
+- RabbitMq
+- Varnish
+
 ## Setup docker
 - Create a directory where you want to run this docker
 - Clone this Repository to the directory
