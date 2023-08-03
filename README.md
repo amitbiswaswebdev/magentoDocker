@@ -3,6 +3,7 @@ Dockerisation of magento open source
 
 ## Prerequisite
 - Docker desktop applipation in your system
+- For windows user - WSL2
 
 ## Setup docker
 - Create a directory where you want to run this docker
