@@ -1,0 +1,11 @@
+upstream fastcgi_backend {
+   # use tcp connection
+   server  127.0.0.1:9000;
+   # or socket
+   # server unix:/var/run/php/php8.2-fpm.sock;
+}
+server {
+   set $MAGE_ROOT /var/www/html;
+   set $MAGE_DEBUG_SHOW_ARGS 0;
+   include /var/www/html/nginx.conf.sample;
+}
