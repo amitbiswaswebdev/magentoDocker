@@ -1,8 +1,8 @@
 # Magento Docker
-Dockerisation of magento open source
+Dockerization of magento open source
 
 ## Prerequisite
-- Docker desktop applipation in your system
+- Docker desktop application in your system
 - For windows user - WSL2
 
 ## Environment used
@@ -15,6 +15,10 @@ Dockerisation of magento open source
 - Redis Insight
 - RabbitMq
 - Varnish
+
+## Compatible magento versions
+- 2.4.6-p1
+- 2.4.6-p2
 
 ## Setup and verify docker
 - Create a directory where you want to run this docker
@@ -30,7 +34,7 @@ Dockerisation of magento open source
 - Add magento auth keys to the composer `composer config --global http-basic.repo.magento.com YOUR_MAGENTO_KEY YOUR_MAGENTO_SECRET`
 - Run `composer create-project --repository-url=https://repo.magento.com/ magento/project-community-edition=2.4.6-p1 .`
 - Run below CLI command to install magento
-    ``` 
+    ```
   bin/magento setup:install \
     --base-url=http://localhost \
     --db-host=mariadb \
