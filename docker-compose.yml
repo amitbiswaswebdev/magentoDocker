@@ -34,15 +34,15 @@ services:
   nginx:
     build:
       context: ./docker/m246/images/nginx
-      # args:
-      #   app_user_id: 1000
-      #   app_group_id: 1000
+      args:
+         app_user_id: 1000
+         app_group_id: 1000
     depends_on:
       - php-fpm
       - mariadb
     ports:
-      - 80:80
-      - 443:443
+      - "80:80"
+      - "443:443"
     networks:
       - magento
     volumes:
@@ -51,9 +51,9 @@ services:
   php-fpm:
     build:
       context: ./docker/m246/images/php
-      # args:
-      #   app_user_id: 1000
-      #   app_group_id: 1000
+      args:
+         app_user_id: 1000
+         app_group_id: 1000
     networks:
       - magento
     volumes:

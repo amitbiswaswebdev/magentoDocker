@@ -1,12 +1,10 @@
 FROM php:8.2-fpm
 
-# ARG app_user_id
-# ARG app_group_id
+ARG app_user_id
+ARG app_group_id
 ARG NODE_VERSION=20
 
 COPY conf/php.ini /usr/local/etc/php/
-
-# RUN mkdir /sock
 
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer --version=2.2.21
 RUN curl -sL https://deb.nodesource.com/setup_$NODE_VERSION.x  | bash -
@@ -46,16 +44,16 @@ RUN docker-php-ext-configure zip
 
 # Install required PHP extensions
 RUN docker-php-ext-install \
-    dom \ 
-    gd \ 
-    intl \ 
-    mbstring \ 
-    pdo_mysql \ 
-    xsl \ 
-    zip \ 
-    soap \ 
-    bcmath \ 
-    pcntl \ 
+    dom \
+    gd \
+    intl \
+    mbstring \
+    pdo_mysql \
+    xsl \
+    zip \
+    soap \
+    bcmath \
+    pcntl \
     sockets \
     opcache \
     ctype \
@@ -66,25 +64,18 @@ RUN docker-php-ext-install \
     sodium \
     xmlwriter \
     xsl
-# RUN docker-php-ext-install zlib 
-# RUN docker-php-ext-install tokenizer
-# RUN docker-php-ext-install json
-# RUN docker-php-ext-install libxml
-# RUN docker-php-ext-install openssl
-# RUN docker-php-ext-install pcre
-# RUN docker-php-ext-install hash
 
 RUN docker-php-ext-enable \
-    dom \ 
-    gd \ 
-    intl \ 
-    mbstring \ 
-    pdo_mysql \ 
-    xsl \ 
-    zip \ 
-    soap \ 
-    bcmath \ 
-    pcntl \ 
+    dom \
+    gd \
+    intl \
+    mbstring \
+    pdo_mysql \
+    xsl \
+    zip \
+    soap \
+    bcmath \
+    pcntl \
     sockets \
     opcache \
     ctype \
@@ -96,12 +87,12 @@ RUN docker-php-ext-enable \
     xmlwriter \
     xsl
 
-# RUN groupadd -g ${app_group_id} app && useradd -g ${app_group_id} -u ${app_user_id} -d /var/www -s /bin/bash app
+RUN mkdir -p /var/www/.config
 
-# RUN chown -R app:app /usr/local/etc/php/conf.d
-# RUN chown -R app:app /usr/local/etc/php/conf.d
+RUN groupadd -g ${app_group_id} app \
+ && useradd -g ${app_group_id} -u ${app_user_id} -d /var/www/* -s /bin/bash app
 
-# USER app:app
+USER app:app
 
 VOLUME /var/www
 
